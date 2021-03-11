@@ -231,12 +231,12 @@ func (c *ConnectionContext) CreateChannel(exchange, exchangeType, queueName, bin
 			select {
 			case e := <-closeChan:
 				if c.retryFlag {
-					log.Fatalln("信道连接断开", e)
+					log.Println("信道连接断开,开始重新建立连接", e)
 					for i := 0; i < retryCount; i++ {
 						time.Sleep(waitConfirmTime)
 						chn, err := c.Connection.Channel()
 						if err != nil {
-							log.Fatalln("重新创建Channel错误:", err)
+							log.Println("重新创建Channel错误，等待下次重连:", err)
 						}
 						c.Channels[id].Channel = chn
 					}

@@ -139,14 +139,17 @@ func (c *ConnectionContext) reconnect() {
 	select {
 	case e := <-closeChan:
 		if c.retryFlag {
-			log.Fatalln("连接失败", c.ConnectionID, e)
-			for i := 0; i < retryCount; i++ {
-				time.Sleep(waitConfirmTime)
+			log.Println("连接失败,开启重连", c.ConnectionID, e)
+			for i := 0; retryCount != 0 && i < retryCount; i++ {
 				conn, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%d/%s", c.User, c.Password, c.Host, c.Port, c.VirtualHost))
 				if err != nil {
-					log.Fatalln("重新连接时错误：", err)
+					log.Println("重新连接时错误,等待下次重连：", err)
 				}
 				c.Connection = conn
+				if !c.Connection.IsClosed() {
+					break
+				}
+				time.Sleep(waitConfirmTime)
 			}
 		}
 		close(closeChan)
@@ -232,13 +235,15 @@ func (c *ConnectionContext) CreateChannel(exchange, exchangeType, queueName, bin
 			case e := <-closeChan:
 				if c.retryFlag {
 					log.Println("信道连接断开,开始重新建立连接", e)
-					for i := 0; i < retryCount; i++ {
-						time.Sleep(waitConfirmTime)
+					for i := 0; retryCount != 0 && i < retryCount; i++ {
 						chn, err := c.Connection.Channel()
 						if err != nil {
 							log.Println("重新创建Channel错误，等待下次重连:", err)
+						} else {
+							c.Channels[id].Channel = chn
+							break
 						}
-						c.Channels[id].Channel = chn
+						time.Sleep(waitConfirmTime)
 					}
 				}
 				close(closeChan)

@@ -152,7 +152,7 @@ func (c *ConnectionContext) reconnect() {
 				time.Sleep(waitConfirmTime)
 			}
 		}
-		close(closeChan)
+		// close(closeChan)
 	}
 }
 
@@ -246,7 +246,7 @@ func (c *ConnectionContext) CreateChannel(exchange, exchangeType, queueName, bin
 						time.Sleep(waitConfirmTime)
 					}
 				}
-				close(closeChan)
+				// close(closeChan)
 			}
 		}()
 	}

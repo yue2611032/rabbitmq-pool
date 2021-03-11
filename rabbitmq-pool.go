@@ -53,7 +53,8 @@ type ChannelContext struct {
 	NoWait       bool   //是否阻塞队列
 	ChannelID    string
 	Channel      *amqp.Channel
-	retryFlag    bool //是否可以重连
+	retryFlag    bool                  //是否可以重连
+	Queues       map[string]amqp.Queue //队列组
 }
 
 var (
@@ -214,6 +215,7 @@ func (c *ConnectionContext) CreateChannel(exchange, exchangeType, queueName, bin
 		AutoDelete:   autoDelete,
 		NoWait:       noWait,
 		QueueName:    queueName,
+		Queues:       make(map[string]amqp.Queue, 0),
 	}
 	id := cc.generateID()
 	//创建channel
@@ -261,12 +263,14 @@ func (c *ChannelContext) ExchangeDeclare() error {
 	return nil
 }
 
-//QueueDeclare 创建一个队列
-func (c *ChannelContext) QueueDeclare() error {
-	if _, err := c.Channel.QueueDeclare(c.QueueName, c.Durable, c.AutoDelete, false, c.NoWait, nil); err != nil {
-		return fmt.Errorf("创建交换机错误:%v", err)
+//QueueDeclare 创建一个队列,QueueName为空则创建随机队列
+func (c *ChannelContext) QueueDeclare() (amqp.Queue, error) {
+	q, err := c.Channel.QueueDeclare(c.QueueName, c.Durable, c.AutoDelete, false, c.NoWait, nil)
+	if err != nil {
+		return q, fmt.Errorf("创建交换机错误:%v", err)
 	}
-	return nil
+	c.Queues[q.Name] = q
+	return c.Queues[q.Name], nil
 }
 
 //QueueBind 绑定队列

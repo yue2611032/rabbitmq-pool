@@ -280,6 +280,36 @@ func (c *ChannelContext) ExchangeBind(destination, key, source string, noWait bo
 	return nil
 }
 
-func (c *ChannelContext) Publish(body string) {
+//Publish 发送消息
+func (c *ChannelContext) Publish(body string) error {
+	return c.Channel.Publish(c.Exchange, c.QueueName, false, false, amqp.Publishing{
+		//类型
+		ContentType: "text/plain",
+		//消息
+		Body: []byte(body),
+	})
+}
 
+func (c *ChannelContext) Resome(receive func(interface{})) error {
+	//消费消息
+	message, err := c.Channel.Consume(
+		c.QueueName,
+		"", //可以执行对应消费者
+		true,
+		false,
+		false,
+		c.NoWait,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+	forever := make(chan bool)
+	go func() {
+		for d := range message {
+			receive(&d)
+		}
+	}()
+	<-forever
+	return err
 }

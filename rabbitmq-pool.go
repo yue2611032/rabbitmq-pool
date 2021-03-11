@@ -299,10 +299,11 @@ func (c *ChannelContext) Publish(body string) error {
 	})
 }
 
-func (c *ChannelContext) Resome(receive func(interface{})) error {
+//Resome 消费队列
+func (c *ChannelContext) Resome(queueName string, receive func(interface{})) error {
 	//消费消息
 	message, err := c.Channel.Consume(
-		c.QueueName,
+		queueName,
 		"", //可以执行对应消费者
 		true,
 		false,

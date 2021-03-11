@@ -73,7 +73,7 @@ func Init(MaxConnection, MaxChannel uint) *ConnectionPool {
 		cp = &ConnectionPool{
 			MaxChannel:    20,
 			MaxConnection: 5,
-			Connections:   make(map[string]*ConnectionContext),
+			Connections:   make(map[string]*ConnectionContext, int(MaxConnection)),
 		}
 		if MaxConnection > 0 {
 			cp.MaxConnection = MaxConnection

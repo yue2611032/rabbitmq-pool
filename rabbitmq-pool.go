@@ -141,7 +141,7 @@ func (c *ConnectionContext) reconnect() {
 	case e := <-closeChan:
 		if c.retryFlag {
 			log.Println("连接失败,开启重连", c.ConnectionID, e)
-			for i := 0; retryCount != 0 || i < retryCount; i++ {
+			for i := 0; retryCount == 0 || i < retryCount; i++ {
 				conn, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%d/%s", c.User, c.Password, c.Host, c.Port, c.VirtualHost))
 				if err != nil {
 					log.Println("重新连接时错误,等待下次重连：", err)
@@ -237,7 +237,7 @@ func (c *ConnectionContext) CreateChannel(exchange, exchangeType, queueName, bin
 			case e := <-closeChan:
 				if c.retryFlag {
 					log.Println("信道连接断开,开始重新建立连接", e)
-					for i := 0; retryCount != 0 || i < retryCount; i++ {
+					for i := 0; retryCount == 0 || i < retryCount; i++ {
 						chn, err := c.Connection.Channel()
 						if err != nil {
 							log.Println("重新创建Channel错误，等待下次重连:", err)

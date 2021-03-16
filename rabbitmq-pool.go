@@ -145,12 +145,13 @@ func (c *ConnectionContext) reconnect() {
 				conn, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%d/%s", c.User, c.Password, c.Host, c.Port, c.VirtualHost))
 				if err != nil {
 					log.Println("重新连接时错误,等待下次重连：", err)
+					time.Sleep(waitConfirmTime)
+					continue
 				}
 				c.Connection = conn
-				if !c.Connection.IsClosed() {
+				if c.Connection != nil && !c.Connection.IsClosed() {
 					break
 				}
-				time.Sleep(waitConfirmTime)
 			}
 		}
 		// close(closeChan)

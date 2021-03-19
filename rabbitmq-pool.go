@@ -318,12 +318,8 @@ func (c *ChannelContext) Resome(queueName string, receive func(interface{})) err
 		log.Println("监听消息时发生错误", err)
 		return err
 	}
-	forever := make(chan bool)
-	go func() {
-		for d := range message {
-			receive(&d)
-		}
-	}()
-	<-forever
+	for d := range message {
+		receive(&d)
+	}
 	return err
 }

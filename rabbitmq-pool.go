@@ -244,6 +244,8 @@ func (c *ConnectionContext) CreateChannel(exchange, exchangeType, queueName, bin
 							log.Println("重新创建Channel错误，等待下次重连:", err)
 						} else {
 							c.Channels[id].Channel = chn
+							log.Println("重新连接成功,重新绑定Queue")
+							c.Channels[id].QueueBind()
 							break
 						}
 						time.Sleep(waitConfirmTime)

@@ -315,6 +315,7 @@ func (c *ChannelContext) Resome(queueName string, receive func(interface{})) err
 		nil,
 	)
 	if err != nil {
+		log.Println("监听消息时发生错误", err)
 		return err
 	}
 	forever := make(chan bool)

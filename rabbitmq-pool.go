@@ -135,8 +135,8 @@ func (c *ConnectionPool) CreateConnection(host, user, password, vhost string, po
 }
 
 func (c *ConnectionContext) reconnect() {
-	closeChan := make(chan *amqp.Error, 1)
 	for {
+		closeChan := make(chan *amqp.Error, 1)
 		c.Connection.NotifyClose(closeChan)
 		select {
 		case e := <-closeChan:
@@ -234,8 +234,8 @@ func (c *ConnectionContext) CreateChannel(exchange, exchangeType, queueName, bin
 	if cc.Reliable {
 		//开启断线重连
 		go func() {
-			closeChan := make(chan *amqp.Error, 1)
 			for {
+				closeChan := make(chan *amqp.Error, 1)
 				cc.Channel.NotifyClose(closeChan)
 				select {
 				case e := <-closeChan:
